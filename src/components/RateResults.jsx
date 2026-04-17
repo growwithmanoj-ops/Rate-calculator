@@ -22,18 +22,24 @@ const InfoIcon = ({ color = '#9ca3af' }) => (
   </svg>
 );
 
+const FORWARD_BREAKDOWN = [
+  { label: 'Shipping cost', value: '₹30.00' },
+  { label: 'GST charge', value: '₹5.48' },
+  { label: 'Diesel Price Hike (DPH) charge', value: '₹0.44' },
+];
+
 const RESULTS = {
   forward: {
-    express: { price: '35.92', delivery: '1', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
-    surface:  { price: '35.92', delivery: '1', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+    express: { price: '35.92', delivery: '1', breakdown: FORWARD_BREAKDOWN },
+    surface:  { price: '35.92', delivery: '1', breakdown: FORWARD_BREAKDOWN },
   },
   rto: {
-    express: { price: '71.84', delivery: '1', breakdown: 'Forward: ₹35.92 + RTO: ₹35.92' },
-    surface:  { price: '71.84', delivery: '1', breakdown: 'Forward: ₹35.92 + RTO: ₹35.92' },
+    express: { price: '71.84', delivery: '1', breakdown: [{ label: 'Forward charge', value: '₹35.92' }, { label: 'RTO charge', value: '₹35.92' }] },
+    surface:  { price: '71.84', delivery: '1', breakdown: [{ label: 'Forward charge', value: '₹35.92' }, { label: 'RTO charge', value: '₹35.92' }] },
   },
   reverse: {
-    express: { price: '35.92', delivery: '2', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
-    surface:  { price: '35.92', delivery: '3', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+    express: { price: '35.92', delivery: '2', breakdown: FORWARD_BREAKDOWN },
+    surface:  { price: '35.92', delivery: '3', breakdown: FORWARD_BREAKDOWN },
   },
 };
 
@@ -153,9 +159,14 @@ export default function RateResults({ calculatedWeight }) {
             <span style={styles.price}>{data.express.price}</span>
             <span style={styles.deliveryText}>&nbsp;/ Delivery in {data.express.delivery} day{data.express.delivery !== '1' ? 's' : ''}</span>
           </div>
-          <div style={styles.breakdown}>
-            <InfoIcon />
-            <span style={styles.breakdownText}>{data.express.breakdown}</span>
+          <div style={styles.breakdownList}>
+            {data.express.breakdown.map((item, i) => (
+              <div key={i} style={styles.breakdownRow}>
+                <InfoIcon />
+                <span style={styles.breakdownLabel}>{item.label}:</span>
+                <span style={styles.breakdownValue}>{item.value}</span>
+              </div>
+            ))}
           </div>
           {activeTab === 'rto' && <div style={styles.rtoTag}><span style={styles.rtoTagText}>Forward + RTO</span></div>}
         </div>
@@ -173,9 +184,14 @@ export default function RateResults({ calculatedWeight }) {
             <span style={styles.price}>{data.surface.price}</span>
             <span style={styles.deliveryText}>&nbsp;/ Delivery in {data.surface.delivery} day{data.surface.delivery !== '1' ? 's' : ''}</span>
           </div>
-          <div style={styles.breakdown}>
-            <InfoIcon />
-            <span style={styles.breakdownText}>{data.surface.breakdown}</span>
+          <div style={styles.breakdownList}>
+            {data.surface.breakdown.map((item, i) => (
+              <div key={i} style={styles.breakdownRow}>
+                <InfoIcon />
+                <span style={styles.breakdownLabel}>{item.label}:</span>
+                <span style={styles.breakdownValue}>{item.value}</span>
+              </div>
+            ))}
           </div>
           {activeTab === 'rto' && <div style={styles.rtoTag}><span style={styles.rtoTagText}>Forward + RTO</span></div>}
         </div>
@@ -351,8 +367,10 @@ const styles = {
   rupee: { fontSize: 22, fontWeight: 700, color: '#1a1f36', lineHeight: 1 },
   price: { fontSize: 38, fontWeight: 700, color: '#1a1f36', lineHeight: 1, letterSpacing: '-1px' },
   deliveryText: { fontSize: 13, color: '#6b7280', fontWeight: 400, marginLeft: 2 },
-  breakdown: { display: 'flex', alignItems: 'flex-start', gap: 5 },
-  breakdownText: { fontSize: 12, color: '#9ca3af', lineHeight: 1.5 },
+  breakdownList: { display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 4 },
+  breakdownRow: { display: 'flex', alignItems: 'center', gap: 5 },
+  breakdownLabel: { fontSize: 12, color: '#9ca3af' },
+  breakdownValue: { fontSize: 12, color: '#6b7280', fontWeight: 600 },
   resultIcon: { flexShrink: 0, marginLeft: 12, marginTop: 4 },
   divider: { height: 1, background: '#e5e7eb', margin: '0 24px' },
   linkWrap: { padding: '16px 24px 0', textAlign: 'center' },
