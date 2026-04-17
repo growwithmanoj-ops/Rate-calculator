@@ -1,5 +1,72 @@
 import React, { useState } from 'react';
 
+// Pincode → state lookup by first 2 digits
+const STATE_MAP = {
+  '11': 'Delhi',        '12': 'Haryana',         '13': 'Haryana',
+  '14': 'Punjab',       '15': 'Punjab',           '16': 'Punjab',
+  '17': 'Himachal Pradesh', '18': 'Jammu & Kashmir', '19': 'Jammu & Kashmir',
+  '20': 'Uttar Pradesh','21': 'Uttar Pradesh',    '22': 'Uttar Pradesh',
+  '23': 'Uttar Pradesh','24': 'Uttar Pradesh',    '25': 'Uttar Pradesh',
+  '26': 'Uttar Pradesh','27': 'Uttar Pradesh',    '28': 'Uttar Pradesh',
+  '30': 'Rajasthan',    '31': 'Rajasthan',        '32': 'Rajasthan',
+  '33': 'Rajasthan',    '34': 'Rajasthan',
+  '36': 'Gujarat',      '37': 'Gujarat',          '38': 'Gujarat',      '39': 'Gujarat',
+  '40': 'Maharashtra',  '41': 'Maharashtra',      '42': 'Maharashtra',
+  '43': 'Maharashtra',  '44': 'Maharashtra',
+  '45': 'Madhya Pradesh','46': 'Madhya Pradesh',  '47': 'Madhya Pradesh','48': 'Madhya Pradesh',
+  '49': 'Chhattisgarh',
+  '50': 'Telangana',    '51': 'Andhra Pradesh',   '52': 'Andhra Pradesh','53': 'Andhra Pradesh',
+  '56': 'Karnataka',    '57': 'Karnataka',        '58': 'Karnataka',    '59': 'Karnataka',
+  '60': 'Tamil Nadu',   '61': 'Tamil Nadu',       '62': 'Tamil Nadu',
+  '63': 'Tamil Nadu',   '64': 'Tamil Nadu',
+  '67': 'Kerala',       '68': 'Kerala',           '69': 'Kerala',
+  '70': 'West Bengal',  '71': 'West Bengal',      '72': 'West Bengal',
+  '73': 'West Bengal',  '74': 'West Bengal',
+  '75': 'Odisha',       '76': 'Odisha',           '77': 'Odisha',
+  '78': 'Assam',        '79': 'North East',
+  '80': 'Bihar',        '81': 'Bihar',            '82': 'Bihar',
+  '83': 'Jharkhand',    '84': 'Bihar',            '85': 'Bihar',
+};
+
+// Metro city pincode prefixes (first 3 digits)
+const METRO_PREFIXES = new Set(['110', '400', '401', '560', '600', '601', '602', '603', '700', '500', '380', '411']);
+
+const ZONES = {
+  A: { label: 'Zone A', definition: 'Within City — same city delivery', color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0' },
+  B: { label: 'Zone B', definition: 'Within State — intra-state, different city', color: '#2563eb', bg: '#dbeafe', border: '#bfdbfe' },
+  C: { label: 'Zone C', definition: 'Metro to Metro — between major metro cities', color: '#7c3aed', bg: '#ede9fe', border: '#ddd6fe' },
+  D: { label: 'Zone D', definition: 'Rest of India — metro to non-metro or between non-metro cities', color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
+  E: { label: 'Zone E', definition: 'Special / Remote Areas — Andaman, North-East states', color: '#dc2626', bg: '#fee2e2', border: '#fecaca' },
+};
+
+function getZone(fromPin, toPin) {
+  if (fromPin.length !== 6 || toPin.length !== 6) return null;
+
+  // Special / remote areas
+  if (fromPin.startsWith('744') || toPin.startsWith('744') ||
+      fromPin.startsWith('79') || toPin.startsWith('79')) {
+    return ZONES.E;
+  }
+
+  // Zone A: same first 3 digits → same city/district
+  if (fromPin.substring(0, 3) === toPin.substring(0, 3)) return ZONES.A;
+
+  const fromState = STATE_MAP[fromPin.substring(0, 2)];
+  const toState   = STATE_MAP[toPin.substring(0, 2)];
+
+  // Zone B: same state
+  if (fromState && toState && fromState === toState) return ZONES.B;
+
+  const fromMetro = METRO_PREFIXES.has(fromPin.substring(0, 3));
+  const toMetro   = METRO_PREFIXES.has(toPin.substring(0, 3));
+
+  // Zone C: metro ↔ metro
+  if (fromMetro && toMetro) return ZONES.C;
+
+  // Zone D: everything else (metro↔non-metro or non-metro↔non-metro cross-state)
+  return ZONES.D;
+}
+
 export default function RateCalculatorForm({ onChange }) {
   const [fromPin, setFromPin] = useState('641009');
   const [toPin, setToPin] = useState('641009');
@@ -8,6 +75,9 @@ export default function RateCalculatorForm({ onChange }) {
   const [dims, setDims] = useState({ l: '1', b: '1', h: '1' });
   const [paymentMode, setPaymentMode] = useState('prepaid');
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [zoneTooltip, setZoneTooltip] = useState(false);
+
+  const zone = getZone(fromPin, toPin);
 
   // Volumetric weight in KG: L*B*H / 5000 (standard courier formula)
   const volWeightKg = (+dims.l * +dims.b * +dims.h) / 5000;
@@ -65,6 +135,39 @@ export default function RateCalculatorForm({ onChange }) {
           <span style={styles.cityLabel}>Coimbatore, Tamil Nadu</span>
           <span style={styles.cityLabel}>Coimbatore, Tamil Nadu</span>
         </div>
+
+        {/* Zone badge */}
+        {zone && (
+          <div style={styles.zoneRow}>
+            <div
+              style={{ ...styles.zoneBadge, background: zone.bg, border: `1px solid ${zone.border}`, color: zone.color }}
+              onMouseEnter={() => setZoneTooltip(true)}
+              onMouseLeave={() => setZoneTooltip(false)}
+            >
+              <span style={styles.zoneLetter}>{zone.label}</span>
+              <span style={styles.zoneSep}>·</span>
+              <span style={styles.zoneDef}>{zone.definition}</span>
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" style={{ marginLeft: 4, flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="9" stroke={zone.color} strokeWidth="1.8"/>
+                <path d="M12 8v4M12 16v.5" stroke={zone.color} strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              {zoneTooltip && (
+                <div style={styles.zoneTooltip}>
+                  <div style={styles.zoneTooltipTitle}>{zone.label}</div>
+                  <div style={styles.zoneTooltipBody}>{zone.definition}.</div>
+                  <div style={styles.zoneTooltipGrid}>
+                    {Object.entries(ZONES).map(([key, z]) => (
+                      <div key={key} style={{ ...styles.zoneTooltipRow, ...(key === Object.keys(ZONES).find(k => ZONES[k] === zone) ? styles.zoneTooltipRowActive : {}) }}>
+                        <span style={{ ...styles.zoneTooltipBadge, background: z.bg, color: z.color, borderColor: z.border }}>{z.label}</span>
+                        <span style={styles.zoneTooltipRowDef}>{z.definition.split('—')[0].trim()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Package Type & Weight row */}
@@ -580,5 +683,86 @@ const styles = {
     boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
     zIndex: 50,
     pointerEvents: 'none',
+  },
+  zoneRow: {
+    marginTop: 10,
+  },
+  zoneBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 8,
+    padding: '7px 12px',
+    fontSize: 12,
+    fontWeight: 500,
+    cursor: 'default',
+    position: 'relative',
+    userSelect: 'none',
+  },
+  zoneLetter: {
+    fontWeight: 700,
+    fontSize: 12,
+  },
+  zoneSep: {
+    opacity: 0.4,
+    fontSize: 14,
+  },
+  zoneDef: {
+    fontSize: 12,
+    fontWeight: 500,
+  },
+  zoneTooltip: {
+    position: 'absolute',
+    top: 'calc(100% + 8px)',
+    left: 0,
+    background: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: 12,
+    padding: '14px 16px',
+    width: 320,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+    zIndex: 60,
+    pointerEvents: 'none',
+  },
+  zoneTooltipTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: '#1a1f36',
+    marginBottom: 4,
+  },
+  zoneTooltipBody: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 12,
+    lineHeight: 1.5,
+  },
+  zoneTooltipGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+  },
+  zoneTooltipRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '4px 6px',
+    borderRadius: 6,
+  },
+  zoneTooltipRowActive: {
+    background: '#f9fafb',
+  },
+  zoneTooltipBadge: {
+    fontSize: 11,
+    fontWeight: 700,
+    padding: '2px 8px',
+    borderRadius: 5,
+    border: '1px solid',
+    flexShrink: 0,
+    minWidth: 56,
+    textAlign: 'center',
+  },
+  zoneTooltipRowDef: {
+    fontSize: 12,
+    color: '#374151',
   },
 };
