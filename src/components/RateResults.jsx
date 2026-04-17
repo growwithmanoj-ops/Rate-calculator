@@ -185,6 +185,18 @@ export default function RateResults({ calculatedWeight }) {
       <div style={styles.linkWrap}>
         <a href="#" style={styles.link}>View Detailed Rate Card</a>
       </div>
+
+      {/* Create Order CTA */}
+      <div style={styles.ctaWrap}>
+        <a href="/create-order" style={styles.ctaBtn}>
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+            <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="2"/>
+            <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          Create Order
+        </a>
+        <p style={styles.ctaNote}>Rates are indicative. Final charges may vary based on actual shipment.</p>
+      </div>
     </div>
   );
 }
@@ -343,6 +355,33 @@ const styles = {
   breakdownText: { fontSize: 12, color: '#9ca3af', lineHeight: 1.5 },
   resultIcon: { flexShrink: 0, marginLeft: 12, marginTop: 4 },
   divider: { height: 1, background: '#e5e7eb', margin: '0 24px' },
-  linkWrap: { padding: '16px 24px', textAlign: 'center' },
+  linkWrap: { padding: '16px 24px 0', textAlign: 'center' },
   link: { fontSize: 14, color: '#4f6ef7', fontWeight: 500, textDecoration: 'none' },
+  ctaWrap: {
+    padding: '14px 20px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
+  },
+  ctaBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: '12px 0',
+    background: '#1a1f36',
+    color: '#ffffff',
+    borderRadius: 10,
+    fontSize: 15,
+    fontWeight: 600,
+    textDecoration: 'none',
+    transition: 'background 0.15s',
+  },
+  ctaNote: {
+    fontSize: 11,
+    color: '#9ca3af',
+    textAlign: 'center',
+    lineHeight: 1.5,
+  },
 };
