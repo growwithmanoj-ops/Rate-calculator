@@ -281,7 +281,7 @@ export default function RateCalculatorForm({ onChange }) {
           onMouseEnter={() => setTooltipVisible(true)}
           onMouseLeave={() => setTooltipVisible(false)}
         >
-          <span style={styles.weightPillLabel}>Applicable Weight :</span>
+          <span style={styles.weightPillLabel}>Charged Weight :</span>
           <span style={styles.weightPillValueBold}>{applicableWeightKg.toFixed(2)} KG</span>
           <span style={styles.pillInfoIcon}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
@@ -291,7 +291,7 @@ export default function RateCalculatorForm({ onChange }) {
           </span>
           {tooltipVisible && (
             <div style={styles.tooltip}>
-              Between the dead weight and volumetric weight, the number that is higher becomes the shipment's applicable weight.
+              Between the package weight and volumetric weight, the number that is higher becomes the shipment's applicable weight.
             </div>
           )}
         </div>
