@@ -37,7 +37,9 @@ const RESULTS = {
   },
 };
 
-export default function RateResults() {
+const MAX_DOMESTIC_KG = 500;
+
+export default function RateResults({ calculatedWeight }) {
   const [activeTab, setActiveTab] = useState('forward');
 
   const tabs = [
@@ -47,10 +49,78 @@ export default function RateResults() {
   ];
 
   const data = RESULTS[activeTab];
+  const isOverLimit = calculatedWeight !== null && calculatedWeight > MAX_DOMESTIC_KG;
+  const notCalculated = calculatedWeight === null;
 
+  // ── Not yet calculated placeholder ──────────────────────────────────────
+  if (notCalculated) {
+    return (
+      <div style={styles.card}>
+        <div style={styles.tabRow}>
+          {tabs.map(tab => (
+            <button key={tab.key} style={{ ...styles.tab, ...styles.tabInactive }}>{tab.label}</button>
+          ))}
+        </div>
+        <div style={styles.placeholder}>
+          <svg width="48" height="48" fill="none" viewBox="0 0 64 64" style={{ opacity: 0.2, marginBottom: 12 }}>
+            <rect x="4" y="16" width="38" height="26" rx="3" stroke="#1a1f36" strokeWidth="3"/>
+            <path d="M42 24l12 8v10H42V24z" stroke="#1a1f36" strokeWidth="3" strokeLinejoin="round"/>
+            <circle cx="14" cy="46" r="6" stroke="#1a1f36" strokeWidth="3"/>
+            <circle cx="48" cy="46" r="6" stroke="#1a1f36" strokeWidth="3"/>
+          </svg>
+          <p style={styles.placeholderText}>Enter shipment details and click<br/><strong>Calculate Charges</strong> to see rates</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Over 500 KG error ────────────────────────────────────────────────────
+  if (isOverLimit) {
+    return (
+      <div style={styles.card}>
+        <div style={styles.tabRow}>
+          {tabs.map(tab => (
+            <button key={tab.key} style={{ ...styles.tab, ...styles.tabInactive }}>{tab.label}</button>
+          ))}
+        </div>
+        <div style={styles.errorWrap}>
+          {/* Icon */}
+          <div style={styles.errorIconWrap}>
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
+              <path d="M12 2L2 19h20L12 2z" stroke="#dc2626" strokeWidth="1.8" strokeLinejoin="round"/>
+              <path d="M12 9v5" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round"/>
+              <circle cx="12" cy="17" r="0.8" fill="#dc2626"/>
+            </svg>
+          </div>
+
+          <h3 style={styles.errorTitle}>Not possible in Domestic</h3>
+          <p style={styles.errorBody}>
+            Your chargeable weight of <strong>{calculatedWeight.toFixed(2)} KG</strong> exceeds
+            the <strong>{MAX_DOMESTIC_KG} KG</strong> limit for domestic shipments.
+          </p>
+          <p style={styles.errorSuggestion}>
+            Please try shipping via <strong>LTL</strong> or <strong>B2B Load</strong> services
+            which are designed for heavy and bulk shipments.
+          </p>
+
+          <a href="#activate-ltl" style={styles.errorCta}>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Activate LTL / B2B Load Services
+          </a>
+
+          <p style={styles.errorNote}>
+            You will be redirected to activate LTL or B2B load shipping for your account.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Normal results ───────────────────────────────────────────────────────
   return (
     <div style={styles.card}>
-      {/* Toggle tabs */}
       <div style={styles.tabRow}>
         {tabs.map(tab => (
           <button
@@ -63,18 +133,18 @@ export default function RateResults() {
         ))}
       </div>
 
-      {/* RTO note banner */}
       {activeTab === 'rto' && (
         <div style={styles.rtoNote}>
           <InfoIcon color="#b45309" />
           <span style={styles.rtoNoteText}>
-            <strong>Forward + RTO charges included.</strong> This total covers both the forward delivery charge
-            and the return charge in case the shipment is undelivered and returned to origin.
+            <strong>Forward + RTO charges included.</strong> This total covers both the forward
+            delivery charge and the return charge in case the shipment is undelivered and returned
+            to origin.
           </span>
         </div>
       )}
 
-      {/* Express result */}
+      {/* Express */}
       <div style={styles.resultCard}>
         <div style={styles.resultLeft}>
           <div style={styles.serviceTitle}>Express</div>
@@ -87,18 +157,14 @@ export default function RateResults() {
             <InfoIcon />
             <span style={styles.breakdownText}>{data.express.breakdown}</span>
           </div>
-          {activeTab === 'rto' && (
-            <div style={styles.rtoTag}>
-              <span style={styles.rtoTagText}>Forward + RTO</span>
-            </div>
-          )}
+          {activeTab === 'rto' && <div style={styles.rtoTag}><span style={styles.rtoTagText}>Forward + RTO</span></div>}
         </div>
         <div style={styles.resultIcon}><AirplaneIcon /></div>
       </div>
 
       <div style={styles.divider} />
 
-      {/* Surface result */}
+      {/* Surface */}
       <div style={styles.resultCard}>
         <div style={styles.resultLeft}>
           <div style={styles.serviceTitle}>Surface</div>
@@ -111,11 +177,7 @@ export default function RateResults() {
             <InfoIcon />
             <span style={styles.breakdownText}>{data.surface.breakdown}</span>
           </div>
-          {activeTab === 'rto' && (
-            <div style={styles.rtoTag}>
-              <span style={styles.rtoTagText}>Forward + RTO</span>
-            </div>
-          )}
+          {activeTab === 'rto' && <div style={styles.rtoTag}><span style={styles.rtoTagText}>Forward + RTO</span></div>}
         </div>
         <div style={styles.resultIcon}><TruckIcon /></div>
       </div>
@@ -157,7 +219,76 @@ const styles = {
   },
   tabInactive: {
     background: '#ffffff',
+    color: '#9ca3af',
+    cursor: 'default',
+  },
+  placeholder: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '48px 24px',
+    textAlign: 'center',
+  },
+  placeholderText: {
+    fontSize: 14,
+    color: '#9ca3af',
+    lineHeight: 1.7,
+  },
+  errorWrap: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '32px 28px',
+    textAlign: 'center',
+  },
+  errorIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: '50%',
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: '#1a1f36',
+    marginBottom: 10,
+  },
+  errorBody: {
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 1.6,
+    marginBottom: 10,
+  },
+  errorSuggestion: {
+    fontSize: 14,
     color: '#6b7280',
+    lineHeight: 1.6,
+    marginBottom: 20,
+  },
+  errorCta: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 7,
+    padding: '11px 22px',
+    background: '#4f6ef7',
+    color: '#ffffff',
+    borderRadius: 10,
+    fontSize: 14,
+    fontWeight: 600,
+    textDecoration: 'none',
+    marginBottom: 14,
+    transition: 'background 0.15s',
+  },
+  errorNote: {
+    fontSize: 11,
+    color: '#9ca3af',
+    lineHeight: 1.5,
   },
   rtoNote: {
     display: 'flex',
@@ -193,9 +324,7 @@ const styles = {
     justifyContent: 'space-between',
     padding: '20px 24px',
   },
-  resultLeft: {
-    flex: 1,
-  },
+  resultLeft: { flex: 1 },
   serviceTitle: {
     fontSize: 17,
     fontWeight: 600,
@@ -207,53 +336,13 @@ const styles = {
     alignItems: 'baseline',
     marginBottom: 8,
   },
-  rupee: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: '#1a1f36',
-    lineHeight: 1,
-  },
-  price: {
-    fontSize: 38,
-    fontWeight: 700,
-    color: '#1a1f36',
-    lineHeight: 1,
-    letterSpacing: '-1px',
-  },
-  deliveryText: {
-    fontSize: 13,
-    color: '#6b7280',
-    fontWeight: 400,
-    marginLeft: 2,
-  },
-  breakdown: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 5,
-  },
-  breakdownText: {
-    fontSize: 12,
-    color: '#9ca3af',
-    lineHeight: 1.5,
-  },
-  resultIcon: {
-    flexShrink: 0,
-    marginLeft: 12,
-    marginTop: 4,
-  },
-  divider: {
-    height: 1,
-    background: '#e5e7eb',
-    margin: '0 24px',
-  },
-  linkWrap: {
-    padding: '16px 24px',
-    textAlign: 'center',
-  },
-  link: {
-    fontSize: 14,
-    color: '#4f6ef7',
-    fontWeight: 500,
-    textDecoration: 'none',
-  },
+  rupee: { fontSize: 22, fontWeight: 700, color: '#1a1f36', lineHeight: 1 },
+  price: { fontSize: 38, fontWeight: 700, color: '#1a1f36', lineHeight: 1, letterSpacing: '-1px' },
+  deliveryText: { fontSize: 13, color: '#6b7280', fontWeight: 400, marginLeft: 2 },
+  breakdown: { display: 'flex', alignItems: 'flex-start', gap: 5 },
+  breakdownText: { fontSize: 12, color: '#9ca3af', lineHeight: 1.5 },
+  resultIcon: { flexShrink: 0, marginLeft: 12, marginTop: 4 },
+  divider: { height: 1, background: '#e5e7eb', margin: '0 24px' },
+  linkWrap: { padding: '16px 24px', textAlign: 'center' },
+  link: { fontSize: 14, color: '#4f6ef7', fontWeight: 500, textDecoration: 'none' },
 };

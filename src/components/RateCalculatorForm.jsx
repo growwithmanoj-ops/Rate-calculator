@@ -67,7 +67,7 @@ function getZone(fromPin, toPin) {
   return ZONES.D;
 }
 
-export default function RateCalculatorForm({ onChange }) {
+export default function RateCalculatorForm({ onCalculate }) {
   const [fromPin, setFromPin] = useState('641009');
   const [toPin, setToPin] = useState('641009');
   const [packageType, setPackageType] = useState('Plastic cover/Flyer');
@@ -331,6 +331,16 @@ export default function RateCalculatorForm({ onChange }) {
             <span style={styles.radioText}>Cash on Delivery (COD)</span>
           </label>
         </div>
+      </div>
+
+      {/* Calculate button */}
+      <div style={styles.calcBtnWrap}>
+        <button
+          style={styles.calcBtn}
+          onClick={() => onCalculate && onCalculate(applicableWeightKg)}
+        >
+          Calculate Charges
+        </button>
       </div>
     </div>
   );
@@ -764,5 +774,20 @@ const styles = {
   zoneTooltipRowDef: {
     fontSize: 12,
     color: '#374151',
+  },
+  calcBtnWrap: {
+    padding: '16px 24px 24px',
+  },
+  calcBtn: {
+    width: '100%',
+    padding: '12px 0',
+    background: '#4f6ef7',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: 10,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'background 0.15s',
   },
 };
