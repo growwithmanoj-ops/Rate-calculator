@@ -15,6 +15,28 @@ const TruckIcon = () => (
   </svg>
 );
 
+const InfoIcon = ({ color = '#9ca3af' }) => (
+  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" style={{ color, flexShrink: 0, marginTop: 1 }}>
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
+    <path d="M12 8v4M12 16v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+);
+
+const RESULTS = {
+  forward: {
+    express: { price: '35.92', delivery: '1', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+    surface:  { price: '35.92', delivery: '1', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+  },
+  rto: {
+    express: { price: '71.84', delivery: '1', breakdown: 'Forward: ₹35.92 + RTO: ₹35.92' },
+    surface:  { price: '71.84', delivery: '1', breakdown: 'Forward: ₹35.92 + RTO: ₹35.92' },
+  },
+  reverse: {
+    express: { price: '35.92', delivery: '2', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+    surface:  { price: '35.92', delivery: '3', breakdown: 'Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44' },
+  },
+};
+
 export default function RateResults() {
   const [activeTab, setActiveTab] = useState('forward');
 
@@ -24,6 +46,8 @@ export default function RateResults() {
     { key: 'reverse', label: 'Reverse' },
   ];
 
+  const data = RESULTS[activeTab];
+
   return (
     <div style={styles.card}>
       {/* Toggle tabs */}
@@ -32,15 +56,23 @@ export default function RateResults() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            style={{
-              ...styles.tab,
-              ...(activeTab === tab.key ? styles.tabActive : styles.tabInactive),
-            }}
+            style={{ ...styles.tab, ...(activeTab === tab.key ? styles.tabActive : styles.tabInactive) }}
           >
             {tab.label}
           </button>
         ))}
       </div>
+
+      {/* RTO note banner */}
+      {activeTab === 'rto' && (
+        <div style={styles.rtoNote}>
+          <InfoIcon color="#b45309" />
+          <span style={styles.rtoNoteText}>
+            <strong>Forward + RTO charges included.</strong> This total covers both the forward delivery charge
+            and the return charge in case the shipment is undelivered and returned to origin.
+          </span>
+        </div>
+      )}
 
       {/* Express result */}
       <div style={styles.resultCard}>
@@ -48,25 +80,22 @@ export default function RateResults() {
           <div style={styles.serviceTitle}>Express</div>
           <div style={styles.priceRow}>
             <span style={styles.rupee}>₹</span>
-            <span style={styles.price}>35.92</span>
-            <span style={styles.deliveryText}>&nbsp;/ Delivery in 1 days</span>
+            <span style={styles.price}>{data.express.price}</span>
+            <span style={styles.deliveryText}>&nbsp;/ Delivery in {data.express.delivery} day{data.express.delivery !== '1' ? 's' : ''}</span>
           </div>
           <div style={styles.breakdown}>
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" style={{ color: '#9ca3af', flexShrink: 0, marginTop: 1 }}>
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-              <path d="M12 8v4M12 16v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-            <span style={styles.breakdownText}>
-              Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44
-            </span>
+            <InfoIcon />
+            <span style={styles.breakdownText}>{data.express.breakdown}</span>
           </div>
+          {activeTab === 'rto' && (
+            <div style={styles.rtoTag}>
+              <span style={styles.rtoTagText}>Forward + RTO</span>
+            </div>
+          )}
         </div>
-        <div style={styles.resultIcon}>
-          <AirplaneIcon />
-        </div>
+        <div style={styles.resultIcon}><AirplaneIcon /></div>
       </div>
 
-      {/* Divider */}
       <div style={styles.divider} />
 
       {/* Surface result */}
@@ -75,25 +104,22 @@ export default function RateResults() {
           <div style={styles.serviceTitle}>Surface</div>
           <div style={styles.priceRow}>
             <span style={styles.rupee}>₹</span>
-            <span style={styles.price}>35.92</span>
-            <span style={styles.deliveryText}>&nbsp;/ Delivery in 1 days</span>
+            <span style={styles.price}>{data.surface.price}</span>
+            <span style={styles.deliveryText}>&nbsp;/ Delivery in {data.surface.delivery} day{data.surface.delivery !== '1' ? 's' : ''}</span>
           </div>
           <div style={styles.breakdown}>
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" style={{ color: '#9ca3af', flexShrink: 0, marginTop: 1 }}>
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-              <path d="M12 8v4M12 16v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-            <span style={styles.breakdownText}>
-              Shipping cost: ₹30.00 + GST charge: ₹5.48 + Diesel Price Hike (DPH) charge: ₹0.44
-            </span>
+            <InfoIcon />
+            <span style={styles.breakdownText}>{data.surface.breakdown}</span>
           </div>
+          {activeTab === 'rto' && (
+            <div style={styles.rtoTag}>
+              <span style={styles.rtoTagText}>Forward + RTO</span>
+            </div>
+          )}
         </div>
-        <div style={styles.resultIcon}>
-          <TruckIcon />
-        </div>
+        <div style={styles.resultIcon}><TruckIcon /></div>
       </div>
 
-      {/* View detailed rate card link */}
       <div style={styles.linkWrap}>
         <a href="#" style={styles.link}>View Detailed Rate Card</a>
       </div>
@@ -132,6 +158,34 @@ const styles = {
   tabInactive: {
     background: '#ffffff',
     color: '#6b7280',
+  },
+  rtoNote: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    margin: '0 20px 12px',
+    padding: '10px 14px',
+    background: '#fffbeb',
+    border: '1px solid #fde68a',
+    borderRadius: 8,
+  },
+  rtoNoteText: {
+    fontSize: 12,
+    color: '#92400e',
+    lineHeight: 1.6,
+  },
+  rtoTag: {
+    display: 'inline-flex',
+    marginTop: 8,
+  },
+  rtoTagText: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#b45309',
+    background: '#fef3c7',
+    border: '1px solid #fde68a',
+    borderRadius: 5,
+    padding: '2px 8px',
   },
   resultCard: {
     display: 'flex',
