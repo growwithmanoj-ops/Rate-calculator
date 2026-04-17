@@ -7,9 +7,17 @@ export default function RateCalculatorForm({ onChange }) {
   const [weight, setWeight] = useState('500');
   const [dims, setDims] = useState({ l: '1', b: '1', h: '1' });
   const [paymentMode, setPaymentMode] = useState('prepaid');
+  const [tooltipVisible, setTooltipVisible] = useState(false);
 
-  const volWeightExpress = ((+dims.l * +dims.b * +dims.h) / 5000).toFixed(2);
-  const volWeightSurface = ((+dims.l * +dims.b * +dims.h) / 5000).toFixed(2);
+  // Volumetric weight in KG: L*B*H / 5000 (standard courier formula)
+  const volWeightKg = (+dims.l * +dims.b * +dims.h) / 5000;
+  // Dead weight in KG
+  const deadWeightKg = +weight / 1000;
+  // Applicable (charged) weight = max of the two
+  const applicableWeightKg = Math.max(volWeightKg, deadWeightKg);
+
+  const volWeightExpress = volWeightKg.toFixed(2);
+  const volWeightSurface = volWeightKg.toFixed(2);
 
   return (
     <div style={styles.card}>
@@ -155,6 +163,34 @@ export default function RateCalculatorForm({ onChange }) {
               ({dims.l} x {dims.b} x {dims.h}/5000 = {volWeightSurface} grams)
             </span>
           </span>
+        </div>
+      </div>
+
+      {/* Weight pills: Volumetric Weight + Applicable Weight */}
+      <div style={styles.weightPillsRow}>
+        <div style={styles.weightPill}>
+          <span style={styles.weightPillLabel}>Volumetric Weight :</span>
+          <span style={styles.weightPillValue}>{volWeightKg.toFixed(2)} KG</span>
+        </div>
+
+        <div
+          style={styles.weightPillApplicable}
+          onMouseEnter={() => setTooltipVisible(true)}
+          onMouseLeave={() => setTooltipVisible(false)}
+        >
+          <span style={styles.weightPillLabel}>Applicable Weight :</span>
+          <span style={styles.weightPillValueBold}>{applicableWeightKg.toFixed(2)} KG</span>
+          <span style={styles.pillInfoIcon}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" stroke="#6b7280" strokeWidth="1.8"/>
+              <path d="M12 8v4M12 16v.5" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+          </span>
+          {tooltipVisible && (
+            <div style={styles.tooltip}>
+              Between the dead weight and volumetric weight, the number that is higher becomes the shipment's applicable weight.
+            </div>
+          )}
         </div>
       </div>
 
@@ -473,5 +509,76 @@ const styles = {
   radioText: {
     fontSize: 14,
     color: '#374151',
+  },
+  weightPillsRow: {
+    display: 'flex',
+    gap: 10,
+    padding: '14px 24px 0',
+    flexWrap: 'wrap',
+  },
+  weightPill: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    background: '#f3f4f6',
+    border: '1px solid #e5e7eb',
+    borderRadius: 8,
+    padding: '8px 14px',
+    flex: 1,
+    minWidth: 0,
+  },
+  weightPillApplicable: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    background: '#eef0fd',
+    border: '1px solid #c7cffb',
+    borderRadius: 8,
+    padding: '8px 14px',
+    flex: 1,
+    minWidth: 0,
+    position: 'relative',
+    cursor: 'default',
+  },
+  weightPillLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+  },
+  weightPillValue: {
+    fontSize: 13,
+    color: '#374151',
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+  },
+  weightPillValueBold: {
+    fontSize: 13,
+    color: '#3b52d4',
+    fontWeight: 700,
+    whiteSpace: 'nowrap',
+  },
+  pillInfoIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: 2,
+    flexShrink: 0,
+  },
+  tooltip: {
+    position: 'absolute',
+    bottom: 'calc(100% + 8px)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: 10,
+    padding: '12px 16px',
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 1.6,
+    width: 280,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+    zIndex: 50,
+    pointerEvents: 'none',
   },
 };
