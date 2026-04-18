@@ -150,6 +150,30 @@ export default function RateResults({ calculatedWeight }) {
         </div>
       )}
 
+      {/* Charged Weight pill */}
+      <div style={styles.chargedWeightWrap}>
+        <div style={styles.chargedWeightPill}>
+          <div style={styles.chargedWeightLeft}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+              <path d="M12 3C8.5 3 5.5 5.5 5.5 9c0 2.5 1.5 4.7 3.7 5.7L10 21h4l.8-6.3C16.9 13.7 18.5 11.5 18.5 9c0-3.5-3-6-6.5-6z" stroke="#3b52d4" strokeWidth="1.8" strokeLinejoin="round"/>
+            </svg>
+            <span style={styles.chargedWeightLabel}>Charged Weight</span>
+          </div>
+          <div style={styles.chargedWeightRight}>
+            <span style={styles.chargedWeightValue}>{calculatedWeight.toFixed(2)} KG</span>
+            <div
+              style={styles.chargedWeightInfo}
+              title="Between the package weight and volumetric weight, the higher value is used as the charged weight."
+            >
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" stroke="#3b52d4" strokeWidth="1.8"/>
+                <path d="M12 8v4M12 16v.5" stroke="#3b52d4" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Express */}
       <div style={styles.resultCard}>
         <div style={styles.resultLeft}>
@@ -367,6 +391,44 @@ const styles = {
   rupee: { fontSize: 22, fontWeight: 700, color: '#1a1f36', lineHeight: 1 },
   price: { fontSize: 38, fontWeight: 700, color: '#1a1f36', lineHeight: 1, letterSpacing: '-1px' },
   deliveryText: { fontSize: 13, color: '#6b7280', fontWeight: 400, marginLeft: 2 },
+  chargedWeightWrap: {
+    padding: '0 20px 16px',
+  },
+  chargedWeightPill: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: '#eef0fd',
+    border: '1.5px solid #c7cffb',
+    borderRadius: 12,
+    padding: '14px 18px',
+  },
+  chargedWeightLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+  },
+  chargedWeightLabel: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#374151',
+  },
+  chargedWeightRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  chargedWeightValue: {
+    fontSize: 22,
+    fontWeight: 800,
+    color: '#3b52d4',
+    letterSpacing: '-0.5px',
+  },
+  chargedWeightInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'help',
+  },
   breakdownList: { display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 4 },
   breakdownRow: { display: 'flex', alignItems: 'center', gap: 5 },
   breakdownLabel: { fontSize: 12, color: '#9ca3af' },
