@@ -252,7 +252,8 @@ const styles = {
   tabRow: {
     display: 'flex',
     gap: 8,
-    padding: '16px 20px 14px',
+    padding: '16px 16px 14px',
+    flexWrap: 'wrap',
   },
   tab: {
     flex: 1,

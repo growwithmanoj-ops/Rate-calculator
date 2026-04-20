@@ -493,7 +493,7 @@ const styles = {
   },
   twoCol: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: 16,
     padding: '20px 24px 0',
   },
@@ -558,6 +558,7 @@ const styles = {
   dimsRow: {
     display: 'flex',
     gap: 10,
+    flexWrap: 'wrap',
   },
   dimBox: {
     display: 'flex',
@@ -811,7 +812,7 @@ const styles = {
     border: '1px solid #e5e7eb',
     borderRadius: 12,
     padding: '14px 16px',
-    width: 320,
+    width: 'min(320px, 85vw)',
     boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
     zIndex: 60,
     pointerEvents: 'none',

@@ -4,7 +4,7 @@ export default function Topbar() {
   return (
     <header style={styles.topbar}>
       {/* Left: sidebar toggle + breadcrumb */}
-      <div style={styles.left}>
+      <div style={styles.left} className="topbar-left">
         <button style={styles.toggleBtn}>
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
             <path d="M9 18l6-6-6-6" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -20,7 +20,7 @@ export default function Topbar() {
       </div>
 
       {/* Center: search */}
-      <div style={styles.center}>
+      <div style={styles.center} className="topbar-search">
         <div style={styles.searchWrap}>
           <div style={styles.awbBadge}>
             AWB
@@ -40,8 +40,8 @@ export default function Topbar() {
         </div>
       </div>
 
-      {/* Right: actions */}
-      <div style={styles.right}>
+      {/* Right: actions (hidden on mobile, avatar always visible) */}
+      <div style={styles.right} className="topbar-actions">
         {/* Quick Actions */}
         <button style={styles.quickActionsBtn}>
           <div style={styles.quickActionsIcon}>
@@ -86,6 +86,9 @@ export default function Topbar() {
         {/* Avatar */}
         <div style={styles.avatar}>Ma</div>
       </div>
+
+      {/* Avatar always visible on mobile */}
+      <div style={styles.avatarMobile} className="topbar-avatar-mobile">Ma</div>
     </header>
   );
 }
@@ -102,7 +105,7 @@ const styles = {
     gap: 12,
     position: 'fixed',
     top: 0,
-    left: 64,
+    left: 0,
     right: 0,
     zIndex: 90,
   },
@@ -267,5 +270,20 @@ const styles = {
     fontWeight: 700,
     cursor: 'pointer',
     flexShrink: 0,
+  },
+  avatarMobile: {
+    width: 34,
+    height: 34,
+    borderRadius: '50%',
+    background: '#6366f1',
+    color: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: 'pointer',
+    flexShrink: 0,
+    display: 'none', // shown via CSS on mobile
+    marginLeft: 'auto',
   },
 };

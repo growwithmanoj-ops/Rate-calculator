@@ -76,6 +76,7 @@ export default function Sidebar() {
   ];
 
   return (
+    <>
     <aside style={styles.sidebar}>
       {/* Logo */}
       <div style={styles.logoWrap}>
@@ -113,6 +114,16 @@ export default function Sidebar() {
         ))}
       </div>
     </aside>
+
+    {/* Mobile bottom nav */}
+    <nav style={styles.mobileNav} className="mobile-nav-show">
+      {[...navItems, ...bottomItems].slice(0, 5).map((item, i) => (
+        <button key={i} style={{ ...styles.mobileNavBtn, ...(item.active ? styles.mobileNavBtnActive : {}) }}>
+          {icons[item.icon]}
+        </button>
+      ))}
+    </nav>
+    </>
   );
 }
 
@@ -193,5 +204,32 @@ const styles = {
     borderRadius: '50%',
     background: '#f97316',
     border: '1.5px solid #12172a',
+  },
+  mobileNav: {
+    display: 'none',
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    background: '#12172a',
+    zIndex: 100,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+  },
+  mobileNavBtn: {
+    flex: 1,
+    height: '100%',
+    border: 'none',
+    background: 'transparent',
+    color: '#6b7a9e',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  mobileNavBtnActive: {
+    color: '#4f6ef7',
   },
 };
