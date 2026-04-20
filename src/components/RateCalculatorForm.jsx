@@ -67,6 +67,10 @@ function getZone(fromPin, toPin) {
   return ZONES.D;
 }
 
+// Pincodes where heavy shipments (>30 KG) are not serviceable
+const HEAVY_NON_SERVICEABLE = new Set(['192123']);
+const HEAVY_SHIPMENT_THRESHOLD_KG = 30;
+
 export default function RateCalculatorForm({ onCalculate }) {
   const [fromPin, setFromPin] = useState('641009');
   const [toPin, setToPin] = useState('641009');
@@ -76,6 +80,7 @@ export default function RateCalculatorForm({ onCalculate }) {
   const [paymentMode, setPaymentMode] = useState('prepaid');
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [zoneTooltip, setZoneTooltip] = useState(false);
+  const [heavyInfoVisible, setHeavyInfoVisible] = useState(false);
 
   const zone = getZone(fromPin, toPin);
 
@@ -88,6 +93,11 @@ export default function RateCalculatorForm({ onCalculate }) {
 
   const volWeightExpress = volWeightKg.toFixed(2);
   const volWeightSurface = volWeightKg.toFixed(2);
+
+  const isHeavyShipment = applicableWeightKg > HEAVY_SHIPMENT_THRESHOLD_KG;
+  const heavyNotServiceable =
+    isHeavyShipment &&
+    (HEAVY_NON_SERVICEABLE.has(fromPin) || HEAVY_NON_SERVICEABLE.has(toPin));
 
   return (
     <div style={styles.card}>
@@ -163,6 +173,37 @@ export default function RateCalculatorForm({ onCalculate }) {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Heavy shipment not serviceable warning */}
+        {heavyNotServiceable && (
+          <div style={styles.heavyWarn}>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0, marginTop: 1 }}>
+              <path d="M12 2L2 19h20L12 2z" stroke="#dc2626" strokeWidth="1.8" strokeLinejoin="round"/>
+              <path d="M12 9v5" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round"/>
+              <circle cx="12" cy="17.5" r="0.8" fill="#dc2626"/>
+            </svg>
+            <span style={styles.heavyWarnText}>
+              Heavy shipments not serviceable in this pincode
+            </span>
+            <div
+              style={styles.heavyInfoIcon}
+              onMouseEnter={() => setHeavyInfoVisible(true)}
+              onMouseLeave={() => setHeavyInfoVisible(false)}
+            >
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" stroke="#dc2626" strokeWidth="1.8"/>
+                <path d="M12 8v4M12 16v.5" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              {heavyInfoVisible && (
+                <div style={styles.heavyTooltip}>
+                  Heavy shipments are shipments whose charged weight is greater than{' '}
+                  <strong>{HEAVY_SHIPMENT_THRESHOLD_KG} KG</strong>. Your current charged weight
+                  is <strong>{applicableWeightKg.toFixed(2)} KG</strong>.
                 </div>
               )}
             </div>
@@ -696,6 +737,47 @@ const styles = {
   },
   zoneRow: {
     marginTop: 10,
+  },
+  heavyWarn: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 7,
+    marginTop: 10,
+    padding: '10px 14px',
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: 8,
+    position: 'relative',
+  },
+  heavyWarnText: {
+    fontSize: 13,
+    color: '#dc2626',
+    fontWeight: 500,
+    flex: 1,
+    lineHeight: 1.4,
+  },
+  heavyInfoIcon: {
+    flexShrink: 0,
+    cursor: 'help',
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  heavyTooltip: {
+    position: 'absolute',
+    bottom: 'calc(100% + 8px)',
+    right: 0,
+    background: '#ffffff',
+    border: '1px solid #fecaca',
+    borderRadius: 10,
+    padding: '12px 14px',
+    fontSize: 12,
+    color: '#374151',
+    lineHeight: 1.6,
+    width: 260,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+    zIndex: 60,
+    pointerEvents: 'none',
   },
   zoneBadge: {
     display: 'inline-flex',
