@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const AirplaneIcon = () => (
   <svg width="52" height="52" fill="none" viewBox="0 0 64 64" style={{ opacity: 0.18 }}>
@@ -14,6 +14,155 @@ const TruckIcon = () => (
     <circle cx="48" cy="46" r="6" stroke="#1a1f36" strokeWidth="3"/>
   </svg>
 );
+
+const PinIcon = ({ color, bg }) => (
+  <div style={{ width: 40, height: 40, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke={color} strokeWidth="1.8" strokeLinejoin="round"/>
+      <circle cx="12" cy="9" r="2.5" stroke={color} strokeWidth="1.8"/>
+    </svg>
+  </div>
+);
+
+const DOWNLOAD_OPTIONS = [
+  {
+    key: 'small',
+    label: 'Small Serviceable',
+    sub: 'Pincodes · CSV format',
+    color: '#4f6ef7',
+    bg: '#eef0fd',
+    filename: 'small-serviceable-pincodes.csv',
+    data: 'pincode,city,state,type\n641009,Coimbatore,Tamil Nadu,Small Serviceable\n560025,Bangalore,Karnataka,Small Serviceable\n110001,Delhi,Delhi,Small Serviceable',
+  },
+  {
+    key: 'heavy',
+    label: 'Heavy Serviceable',
+    sub: 'Pincodes · CSV format',
+    color: '#16a34a',
+    bg: '#dcfce7',
+    filename: 'heavy-serviceable-pincodes.csv',
+    data: 'pincode,city,state,type\n400001,Mumbai,Maharashtra,Heavy Serviceable\n700001,Kolkata,West Bengal,Heavy Serviceable\n500001,Hyderabad,Telangana,Heavy Serviceable',
+  },
+  {
+    key: 'non',
+    label: 'Non Serviceable',
+    sub: 'Pincodes · CSV format',
+    color: '#dc2626',
+    bg: '#fee2e2',
+    filename: 'non-serviceable-pincodes.csv',
+    data: 'pincode,city,state,type\n192123,Anantnag,Jammu & Kashmir,Non Serviceable',
+  },
+];
+
+function DownloadDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  function handleDownload(opt) {
+    const blob = new Blob([opt.data], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = opt.filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    setOpen(false);
+  }
+
+  return (
+    <div ref={ref} style={dlStyles.wrap}>
+      <button style={dlStyles.btn} onClick={() => setOpen(o => !o)}>
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+          <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M5 20h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        Download
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
+          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div style={dlStyles.dropdown}>
+          <div style={dlStyles.dropdownHeader}>DOWNLOAD</div>
+          {DOWNLOAD_OPTIONS.map((opt, i) => (
+            <React.Fragment key={opt.key}>
+              {i > 0 && <div style={dlStyles.sep} />}
+              <button style={dlStyles.item} onClick={() => handleDownload(opt)}>
+                <PinIcon color={opt.color} bg={opt.bg} />
+                <div style={dlStyles.itemText}>
+                  <span style={dlStyles.itemLabel}>{opt.label} Pincodes</span>
+                  <span style={dlStyles.itemSub}>{opt.sub}</span>
+                </div>
+              </button>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const dlStyles = {
+  wrap: { position: 'relative', display: 'inline-block' },
+  btn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    padding: '9px 18px',
+    border: '1.5px solid #e5e7eb',
+    borderRadius: 50,
+    background: '#ffffff',
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#1a1f36',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 'calc(100% + 8px)',
+    right: 0,
+    background: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: 16,
+    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+    width: 280,
+    overflow: 'hidden',
+    zIndex: 100,
+  },
+  dropdownHeader: {
+    padding: '14px 18px 8px',
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#9ca3af',
+    letterSpacing: 1,
+  },
+  sep: { height: 1, background: '#f3f4f6', margin: '0 18px' },
+  item: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    width: '100%',
+    padding: '14px 18px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    textAlign: 'left',
+    transition: 'background 0.12s',
+  },
+  itemText: { display: 'flex', flexDirection: 'column', gap: 2 },
+  itemLabel: { fontSize: 14, fontWeight: 600, color: '#1a1f36' },
+  itemSub: { fontSize: 12, color: '#9ca3af' },
+};
 
 const InfoIcon = ({ color = '#9ca3af' }) => (
   <svg width="13" height="13" fill="none" viewBox="0 0 24 24" style={{ color, flexShrink: 0, marginTop: 1 }}>
@@ -137,6 +286,9 @@ export default function RateResults({ calculatedWeight }) {
             {tab.label}
           </button>
         ))}
+        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+          <DownloadDropdown />
+        </div>
       </div>
 
       {activeTab === 'rto' && (
