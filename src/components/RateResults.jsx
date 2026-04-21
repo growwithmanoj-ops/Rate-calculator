@@ -276,6 +276,11 @@ export default function RateResults({ calculatedWeight }) {
   // ── Normal results ───────────────────────────────────────────────────────
   return (
     <div style={styles.card}>
+      {/* Top bar: Download CTA right-aligned above tabs */}
+      <div style={styles.topBar}>
+        <DownloadDropdown />
+      </div>
+
       <div style={styles.tabRow}>
         {tabs.map(tab => (
           <button
@@ -286,9 +291,6 @@ export default function RateResults({ calculatedWeight }) {
             {tab.label}
           </button>
         ))}
-        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
-          <DownloadDropdown />
-        </div>
       </div>
 
       {activeTab === 'rto' && (
@@ -401,10 +403,15 @@ const styles = {
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
     overflow: 'hidden',
   },
+  topBar: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '14px 16px 0',
+  },
   tabRow: {
     display: 'flex',
     gap: 8,
-    padding: '16px 16px 14px',
+    padding: '10px 16px 14px',
     flexWrap: 'wrap',
   },
   tab: {
